@@ -10,7 +10,9 @@
 var express = require("express");
 var path = require("path");
 var fs = require("fs");
+const http = require('http');
 var appRoot = require('app-root-path');
+let notesDB = require('./db.json');
 
 
 
@@ -51,82 +53,75 @@ app.use(express.static("assets/css/"));
 
 //HTML ROUTERS
 
-app.get("/notes", function(req, res) {
-    res.sendFile(path.join(__dirname, "notes.html"));
+app.get("/notes", function (req, res) {
+  res.sendFile(path.join(__dirname, "notes.html"));
+  console.log("howdyhowdyhowdy");
+});
+
+
+app.get("/api/notes", function (req, res) {
+  fs.readFile(__dirname + '/noteSaver', "utf8", (err, data) => {
+    if (err) throw err;  
+
+    res.json(data);
+
   });
+  // res.json
+  res.sendFile(path.join(__dirname, "db.json"));
+});
 
 
-  app.get("/api/notes", function(req, res) {
-    res.sendFile(path.join(__dirname, "db.json"));  
-  });
+app.post("/api/notes", function (req, res) {
+  // Note the code here. Our "server" will respond to requests and let users know if they have a table or not.
+  // It will do this by sending out the value "true" have a table
+  // req.body is available since we're using the body parsing middleware
 
+  console.log(req.body);
 
-app.post("/api/notes/", function(req, res) {
-    // Note the code here. Our "server" will respond to requests and let users know if they have a table or not.
-    // It will do this by sending out the value "true" have a table
-    // req.body is available since we're using the body parsing middleware
-    
-    console.log(req.body);
+  res.send(req.body);
 
-    
+  //res.sendFile(path.join(__dirname, "noteSaver"));  
+/*
+  fs.readFile(__dirname + '/db.json', "utf8", (err, data) => {
+    if (err) throw err;
 
-    
-       //res.sendFile(path.join(__dirname, "noteSaver"));  
+    fs.writeFile(data, JSON.stringify(req.body), function (err) {
+      if (err) {
+        return console.log(err);
+      }
+      //res.json(true);
+      console.log("The file was saved!");
+      //console.log(data);
 
-
-      fs.readFile(__dirname + '/db.json', "utf8", (err, data) => {
+      fs.readFile("./noteSaver", "utf8", (err, data) => {
         if (err) throw err;
 
+        console.log(data);
 
-        
-        fs.writeFile(data, JSON.stringify(req.body), function(err) {
-          if(err) {
-              return console.log(err);
-
-          }
-          
-          //res.json(true);
-          console.log("The file was saved!");
-          //console.log(data);
-
-          
-
-          fs.readFile("./noteSaver", "utf8", (err, data) => {
-            if (err) throw err;
-    
-         console.log(data);
-
-         res.send(JSON.stringify(data));
-
-        
-          
-          });
-
-
+        res.send(JSON.stringify(data));
 
       });
-            
-      });
 
-
-      
-
-
+    });
 
   });
+  */
+
+});
 
 
 
-  
-
-
-  
 
 
 
-app.get("*", function(req, res) {
-    res.sendFile(path.join(__dirname, "index.html"));
-  });
+
+
+
+
+app.get("*", function (req, res) {
+  res.sendFile(path.join(__dirname, "index.html"));
+  return;
+});
 
 
 //API ROUTERS
@@ -141,6 +136,6 @@ app.get("*", function(req, res) {
 // The below code effectively "starts" our server
 // =============================================================================
 
-app.listen(PORT, function() {
+app.listen(PORT, function () {
   console.log("App listening on PORT: " + PORT);
 });
